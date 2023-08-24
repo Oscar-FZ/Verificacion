@@ -84,7 +84,7 @@ module fifo_flops_tb();
                     dato = dato + 1;
                 end
                 // Cuando el FIFO está lleno, vamos al ciclo 3
-                if (dato==8) ciclo = 3;
+                if (full) ciclo = 3;
             end
 
             
@@ -99,20 +99,11 @@ module fifo_flops_tb();
                     $display("at $g pushed data: %g count %g", $time,Din,fifo_flops_DUT.count);
                     
                 end
-                if (dato==0) ciclo = 4;
+                // Si la FIFO esta vacia saltamos al ciclo 4
+                if (empty) ciclo = 4;
             end
 
-            
             4:begin
-                // Volvemos a la configuración inicial
-                rst = 1'b0;
-                push = 1'b0;
-                pop = 1'b0;
-                Din = 8'b00;
-                ciclo = 6;
-            end
-            
-            5:begin
                 // Operaciones de push y pop al mismo tiempo
                 rst = 1'b1;
                 push = ~push;
@@ -130,24 +121,39 @@ module fifo_flops_tb();
                     $display("at $g popping data: %g count %g", $time, Dout, fifo_flops_DUT.count);
                 end
                 
-                if (dato == 4) begin
-                    // Cuando el FIFO está medio lleno, vamos al ciclo 6
-                    ciclo = 7;
+                if (dato == bits/2) begin
+                    // Cuando el FIFO está medio lleno, vamos al ciclo 5
+                    ciclo = 5;
                     $display("FIFO is half-full");
                 end
             end
             
             
-            6:begin
-                // Activamos el reset nuevamente
+            5:begin
+                // Activamos el reset con la FIFO medio llena
                 rst = 1'b1;
                 push = 1'b0;
                 pop = 1'b0;
                 Din = 8'b00;
                 ciclo = 9;
             end
+            6:begin
+                // Se esta llenando la FIFO
+                rst = 1'b1;
+                push = ~push;
+                pop = 1'b0;
+                Din = dato;
+                
+                if (push==1)begin
+                    // Realizamos un push y mostramos el dato y el contador
+                    $display("at $g pushed data: %g count %g", $time,Din,fifo_flops_DUT.count);
+                    dato = dato + 1;
+                end
+                // Cuando el FIFO está lleno, vamos al ciclo 3
+                if (full) ciclo = 7;
+            end
             
-            8:begin
+            7:begin
                 // Intentamos hacer un push cuando el FIFO ya está lleno
                 rst = 1'b1;
                 push = 1'b1;
@@ -161,28 +167,44 @@ module fifo_flops_tb();
                 end
                 
                 if (full == 1) begin
-                    // Cuando el FIFO está lleno, vamos al ciclo 9
+                    // Cuando el FIFO está lleno, vamos al ciclo 8
                     ciclo = 10;
                     $display("FIFO is full");
                 end
             end
+          
             
-            9:begin
-                // El FIFO está lleno, volvemos a la configuración inicial
-                rst = 1'b0;
-                push = 1'b0;
-                pop = 1'b0;
-                Din = 8'b00;
-                ciclo = 11;
-            end
-            
-            10:begin
+            8:begin
                 // Reset cuando esta lleno 
                 rst = 1'b1;
                 push = 1'b0;
                 pop = 1'b0;
                 Din = 8'b00;
                 ciclo = 12;
+            end
+            
+             9:begin
+                //Realizamos pop con la FIFO vacia
+                rst = 1'b1;
+                push = 1'b0;
+                pop = ~pop;
+                Din = dato;
+                
+                if (push==1)begin
+                    $display("at $g pushed data: %g count %g", $time,Din,fifo_flops_DUT.count);
+                    
+                end
+                // Si la FIFO esta vacia saltamos al ciclo 4
+                if (empty) ciclo = 10;
+            end
+            
+            10:begin
+                // Reset cuando esta vacio 
+                rst = 1'b1;
+                push = 1'b0;
+                pop = 1'b0;
+                Din = 8'b00;
+                ciclo = 11;
             end
             
             11:begin
