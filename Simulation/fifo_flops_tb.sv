@@ -135,7 +135,7 @@ module fifo_flops_tb();
                 push = 1'b0;
                 pop = 1'b0;
                 Din = 8'b00;
-                ciclo = 9;
+                ciclo = 6;
             end
             6:begin
                 // Se esta llenando la FIFO
