@@ -177,7 +177,7 @@ module fifo_flops_tb();
             end
             
             10:begin
-                // Volvemos a la configuración inicial
+                // Reset cuando esta lleno 
                 rst = 1'b1;
                 push = 1'b0;
                 pop = 1'b0;
