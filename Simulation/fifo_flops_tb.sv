@@ -51,7 +51,7 @@ module fifo_flops_tb();
     task prueba();
         if (full == 1) begin
             // Si el FIFO está lleno, vamos al ciclo 3 para manejarlo
-            ciclo = 2;
+            ciclo = 3;
         end
         
         case(ciclo) 
